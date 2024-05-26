@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound, HttpRequest
+from django.http import HttpResponse, HttpResponseNotFound, HttpRequest, HttpResponseRedirect, Http404
 
 
 # Create your views here.
@@ -21,14 +21,15 @@ challenges = {
 
 def monthly_challenge_by_string(request: HttpRequest, month):
 
-    if not challenges.get(month):
+    try:
+        return HttpResponse(challenges.get(month))
+    except:
         return HttpResponseNotFound("Not found")
-
-    return HttpResponse(challenges.get(month))
 
 
 def monthly_challenge_by_index(request: HttpRequest, index: int):
-    items = list(challenges.items())
-    if index >= len(items):
-        return HttpResponseNotFound("Not found")
-    return HttpResponse(items[index][1])
+    forward_month = list(challenges.keys())
+    try:
+        return HttpResponseRedirect(forward_month[index - 1])
+    except IndexError:
+        return HttpResponseNotFound("Could not find challenge")
